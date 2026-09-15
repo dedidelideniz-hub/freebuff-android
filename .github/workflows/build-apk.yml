@@ -11,28 +11,23 @@ jobs:
       - name: Kodu al
         uses: actions/checkout@v4
 
-      - name: Java 17
+      - name: Java 17 kur
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
 
-      - name: Gradle
+      - name: Gradle kur
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
 
-      - name: Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: SDK paketlerini kur
-        shell: bash
+      - name: Android SDK kontrol
         run: |
-          set -e
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platform-tools"
-          sdkmanager "platforms;android-35"
-          sdkmanager "build-tools;35.0.0"
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          ls "$ANDROID_SDK_ROOT/platforms" || true
+          ls "$ANDROID_SDK_ROOT/build-tools" || true
 
       - name: APK oluştur
         run: gradle assembleDebug --no-daemon
@@ -42,3 +37,4 @@ jobs:
         with:
           name: Freebuff-APK
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
