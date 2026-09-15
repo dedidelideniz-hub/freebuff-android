@@ -6,7 +6,7 @@
     <application
         android:allowBackup="false"
         android:hardwareAccelerated="true"
-        android:label="Sanal Star"
+        android:label="Vaelos"
         android:theme="@style/Theme.Freebuff">
 
         <activity
