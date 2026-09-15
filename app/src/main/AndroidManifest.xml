@@ -6,7 +6,7 @@
     <application
         android:allowBackup="false"
         android:hardwareAccelerated="true"
-        android:icon="@mipmap/icon"
+        android:icon="@drawable/icon"
         android:label="Vaelos"
         android:theme="@style/Theme.Freebuff">
 
