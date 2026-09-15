@@ -2,20 +2,22 @@ package app.freebuff.wrapper
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.webkit.CookieManager
+import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Toast
 
 class MainActivity : Activity() {
 
     private lateinit var webView: WebView
+
     private val gameUrl = "https://sanalstar.freebuff.app/"
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -24,23 +26,44 @@ class MainActivity : Activity() {
 
         webView = WebView(this)
         webView.setBackgroundColor(Color.BLACK)
+
         setContentView(webView)
 
         val settings = webView.settings
+
         settings.javaScriptEnabled = true
         settings.domStorageEnabled = true
         settings.databaseEnabled = true
+
         settings.cacheMode = WebSettings.LOAD_DEFAULT
+
         settings.mediaPlaybackRequiresUserGesture = false
+
         settings.allowFileAccess = false
         settings.allowContentAccess = false
-        settings.mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
-        settings.userAgentString = settings.userAgentString + " FreebuffAndroid/1.0"
+
+        settings.mixedContentMode =
+            WebSettings.MIXED_CONTENT_NEVER_ALLOW
+
+        settings.userAgentString =
+            settings.userAgentString + " FreebuffAndroid/1.0"
 
         CookieManager.getInstance().setAcceptCookie(true)
-        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
+
+        CookieManager.getInstance()
+            .setAcceptThirdPartyCookies(webView, true)
+
+        /*
+         * Web oyunundan Android'in ekran yönünü değiştirmek
+         * için kullanılabilecek köprü.
+         */
+        webView.addJavascriptInterface(
+            OrientationBridge(this),
+            "AndroidOrientation"
+        )
 
         webView.webViewClient = object : WebViewClient() {
+
             override fun shouldOverrideUrlLoading(
                 view: WebView,
                 request: WebResourceRequest
@@ -51,6 +74,9 @@ class MainActivity : Activity() {
 
         webView.webChromeClient = WebChromeClient()
 
+        /*
+         * Edge-to-edge / tam ekran görünüm.
+         */
         webView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
             View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -58,7 +84,12 @@ class MainActivity : Activity() {
         webView.loadUrl(gameUrl)
     }
 
+    /*
+     * Geri tuşu.
+     */
+    @Suppress("DEPRECATION")
     override fun onBackPressed() {
+
         if (webView.canGoBack()) {
             webView.goBack()
         } else {
@@ -66,9 +97,52 @@ class MainActivity : Activity() {
         }
     }
 
+    /*
+     * Activity kapanırken WebView'i temizle.
+     */
     override fun onDestroy() {
+
         webView.stopLoading()
         webView.destroy()
+
         super.onDestroy()
+    }
+
+    /*
+     * Web tarafının Android ekran yönünü değiştirmesini sağlar.
+     */
+    class OrientationBridge(
+        private val activity: Activity
+    ) {
+
+        @JavascriptInterface
+        fun landscape() {
+
+            activity.runOnUiThread {
+
+                activity.requestedOrientation =
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
+        }
+
+        @JavascriptInterface
+        fun portrait() {
+
+            activity.runOnUiThread {
+
+                activity.requestedOrientation =
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+        }
+
+        @JavascriptInterface
+        fun unlock() {
+
+            activity.runOnUiThread {
+
+                activity.requestedOrientation =
+                    ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            }
+        }
     }
 }
