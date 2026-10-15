@@ -18,7 +18,7 @@ class MainActivity : Activity() {
 
     private lateinit var webView: WebView
 
-    private val gameUrl = "https://sanalstar.freebuff.app/"
+    private val gameUrl = "https://site-ddcce044f0e746c2a4aa17227b7d2336.freebuff.page/"
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
